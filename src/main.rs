@@ -178,17 +178,17 @@ fn run(instructions: &Vec<Instruction>, memory: &mut Memory) -> Result<(), Strin
 fn main() {
   let args: Vec<String> = args().collect();
   if args.len() < 2 {
-    println!("Usage: brainfuck <file.bf>");
+    eprintln!("Usage: brainfuck <file.bf>");
   } else if !Path::new(&args[1]).exists() {
-    println!("Cannot find file: {}", &args[1]);
+    eprintln!("Cannot find file: {}", &args[1]);
   } else if let Ok(content) = fs::read_to_string(&args[1]) {
     let tokens = lex(&content);
     let instructions = parse(&tokens);
     let mut memory = Memory::new(30000);
     if let Err(err) = run(&instructions, &mut memory) {
-      println!("An error happened: {}", err);
+      eprintln!("An error happened: {}", err);
     }
   } else {
-    println!("An unknown error happened while reading the file.");
+    eprintln!("An unknown error happened while reading the file.");
   }
 }
