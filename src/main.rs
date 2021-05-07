@@ -6,10 +6,10 @@ use std::fs;
 #[derive(Debug)]
 #[derive(Clone)]
 enum Token {
-  MoveRight,
-  MoveLeft,
   Increment,
   Decrement,
+  MoveRight,
+  MoveLeft,
   Write,
   Read,
   EnterLoop,
@@ -20,10 +20,10 @@ fn lex(program: &str) -> Vec<Token> {
   let mut tokens = vec![];
   for char in program.chars() {
     if let Some(token) = match char {
-      '>' => Some(Token::MoveRight),
-      '<' => Some(Token::MoveLeft),
       '+' => Some(Token::Increment),
       '-' => Some(Token::Decrement),
+      '>' => Some(Token::MoveRight),
+      '<' => Some(Token::MoveLeft),
       '.' => Some(Token::Write),
       ',' => Some(Token::Read),
       '[' => Some(Token::EnterLoop),
@@ -39,10 +39,10 @@ fn lex(program: &str) -> Vec<Token> {
 #[derive(Debug)]
 enum Instruction {
   Loop(Vec<Instruction>),
-  MoveRight,
-  MoveLeft,
   Increment,
   Decrement,
+  MoveRight,
+  MoveLeft,
   Write,
   Read
 }
@@ -54,10 +54,10 @@ fn parse(tokens: &Vec<Token>) -> Vec<Instruction> {
   for (i, token) in tokens.iter().enumerate() {
     if loop_stack == 0 {
       if let Some(instruction) = match token {
-        Token::MoveRight => Some(Instruction::MoveRight),
-        Token::MoveLeft => Some(Instruction::MoveLeft),
         Token::Increment => Some(Instruction::Increment),
         Token::Decrement => Some(Instruction::Decrement),
+        Token::MoveRight => Some(Instruction::MoveRight),
+        Token::MoveLeft => Some(Instruction::MoveLeft),
         Token::Write => Some(Instruction::Write),
         Token::Read => Some(Instruction::Read),
         Token::ExitLoop => panic!("unmatched close loop token at position #{}", i+1),
@@ -153,24 +153,20 @@ impl Memory {
 
 fn run(instructions: &Vec<Instruction>, memory: &mut Memory) -> Result<(), String> {
   for instruction in instructions {
-    if let Err(err) = match instruction {
-      Instruction::MoveRight => memory.move_right(),
-      Instruction::MoveLeft => memory.move_left(),
+    match instruction {
       Instruction::Increment => memory.increment(),
       Instruction::Decrement => memory.decrement(),
+      Instruction::MoveRight => memory.move_right(),
+      Instruction::MoveLeft => memory.move_left(),
       Instruction::Write => memory.write(),
       Instruction::Read => memory.read(),
       Instruction::Loop(inner) => {
         while memory.get_value() != 0 {
-          if let Err(err) = run(inner, memory) {
-            return Err(err);
-          }
+          run(inner, memory)?;
         }
         Ok(())
       }
-    } {
-      return Err(err)
-    }
+    }?;
   }
   return Ok(());
 }
