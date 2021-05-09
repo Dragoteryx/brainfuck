@@ -47,7 +47,7 @@ enum Instruction {
   Read
 }
 
-fn parse(tokens: &Vec<Token>) -> Vec<Instruction> {
+fn parse(tokens: &Vec<Token>) -> Result<Vec<Instruction>, String> {
   let mut intructions = vec![];
   let mut loop_start = 0;
   let mut loop_stack = 0;
@@ -60,26 +60,32 @@ fn parse(tokens: &Vec<Token>) -> Vec<Instruction> {
         Token::MoveLeft => Some(Instruction::MoveLeft),
         Token::Write => Some(Instruction::Write),
         Token::Read => Some(Instruction::Read),
-        Token::ExitLoop => panic!("unmatched close loop token at position #{}", i+1),
         Token::EnterLoop => {
           loop_start = i;
           loop_stack = 1;
           None
         }
+        Token::ExitLoop => {
+          return Err(format!("unmatched close loop token at position #{}", i+1));
+        }
       } {
         intructions.push(instruction);
       }
-    } else if let Token::EnterLoop = token {
-      loop_stack += 1;
-    } else if let Token::ExitLoop = token {
-      loop_stack -= 1;
-      if loop_stack == 0 {
-        intructions.push(Instruction::Loop(parse(&tokens[loop_start+1..i].to_vec())));
+    } else {
+      if let Token::EnterLoop = token {
+        loop_stack += 1;
+      } else if let Token::ExitLoop = token {
+        loop_stack -= 1;
+        if loop_stack == 0 {
+          intructions.push(Instruction::Loop(parse(&tokens[loop_start+1..i].to_vec())?));
+        }
       }
     }
   }
-  return intructions;
+  return Ok(intructions);
 }
+
+// (?<token>[-+><.,])|\[(?<loop>.*)]|(?<unclosed>\[)|(?<unopened>])
 
 #[derive(Debug)]
 struct Memory {
@@ -102,20 +108,12 @@ impl Memory {
     return Ok(());
   }
   fn increment(&mut self) -> Result<(), String> {
-    let value = self.get_value();
-    return self.set_value(if value != 255 {
-      value+1
-    } else {
-      0
-    });
+    self.slots[self.current] = self.get_value().wrapping_add(1);
+    return Ok(());
   }
   fn decrement(&mut self) -> Result<(), String> {
-    let value = self.get_value();
-    return self.set_value(if value != 0 {
-      value-1
-    } else {
-      255
-    });
+    self.slots[self.current] = self.get_value().wrapping_sub(1);
+    return Ok(());
   }
   fn move_right(&mut self) -> Result<(), String> {
     return if self.current < self.slots.len()-1 {
@@ -179,10 +177,16 @@ fn main() {
     eprintln!("Cannot find file: {}", &args[1]);
   } else if let Ok(content) = fs::read_to_string(&args[1]) {
     let tokens = lex(&content);
-    let instructions = parse(&tokens);
-    let mut memory = Memory::new(30000);
-    if let Err(err) = run(&instructions, &mut memory) {
-      eprintln!("An error happened: {}", err);
+    match parse(&tokens) {
+      Ok(instructions) => {
+        let mut memory = Memory::new(30000);
+        if let Err(err) = run(&instructions, &mut memory) {
+          eprintln!("Runtime error: {}", err);
+        }
+      }
+      Err(err) => {
+        eprintln!("Compile time error: {}", err);
+      }
     }
   } else {
     eprintln!("An unknown error happened while reading the file.");
