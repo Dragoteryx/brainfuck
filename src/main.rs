@@ -85,8 +85,6 @@ fn parse(tokens: &Vec<Token>) -> Result<Vec<Instruction>, String> {
   return Ok(intructions);
 }
 
-// (?<token>[-+><.,])|\[(?<loop>.*)]|(?<unclosed>\[)|(?<unopened>])
-
 #[derive(Debug)]
 struct Memory {
   current: usize,
