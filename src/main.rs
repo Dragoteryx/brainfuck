@@ -81,7 +81,11 @@ fn parse(tokens: &Vec<Token>) -> Result<Vec<Instruction>, String> {
       }
     }
   }
-  Ok(intructions)
+  if loop_stack > 0 {
+    Err(format!("unmatched open loop token at position #{}", loop_start+1))
+  } else {
+    Ok(intructions)
+  }
 }
 
 #[derive(Debug)]
