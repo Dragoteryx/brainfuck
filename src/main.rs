@@ -67,7 +67,7 @@ struct Args {
   #[clap(short, long, about = "Wrap around when reaching the leftmost or rightmost cell")]
   wrap: bool,
 
-  #[clap(short, long, about = "Print the values in cells instead of the corresponding character")]
+  #[clap(short, long, about = "Print information about the current cell instead of the corresponding character")]
   debug: bool,
 
   #[clap(short, long, about = "Enable the use of the Y operator (Brainfork)")]
