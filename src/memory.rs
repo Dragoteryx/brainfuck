@@ -66,7 +66,7 @@ impl Memory {
     } else {
       print!("{}", self.get_value() as char);
     }
-    if let Err(_) = stdout().flush() {
+    if stdout().flush().is_err() {
       Err(String::from("couldn't write output"))
     } else {
       Ok(())
@@ -74,7 +74,7 @@ impl Memory {
   }
   pub fn read(&mut self) -> Result<(), String> {
     let mut input = [0];
-    if let Ok(()) = stdin().read_exact(&mut input) {
+    if stdin().read_exact(&mut input).is_err() {
       Err(String::from("couldn't read input"))
     } else {
       self.set_value(input[0]);
