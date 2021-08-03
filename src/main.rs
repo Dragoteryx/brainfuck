@@ -48,12 +48,12 @@ struct Args {
 }
 
 fn main() {
-  let arg = Args::parse();
-  if let Ok(content) = fs::read_to_string(&arg.file) {
+  let args = Args::parse();
+  if let Ok(content) = fs::read_to_string(&args.file) {
     let tokens = lex(&content);
     match parse(&mut tokens.iter()) {
       Ok(instructions) => {
-        let mut memory = Memory::new(arg.size, arg.wrap);
+        let mut memory = Memory::new(args.size, args.wrap);
         if let Err(err) = run(&mut instructions.iter(), &mut memory) {
           eprintln!("Runtime error: {}", err);
         }
