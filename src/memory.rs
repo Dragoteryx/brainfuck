@@ -1,18 +1,20 @@
 use std::io::{stdin, stdout, Write, Read};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Memory {
   pointer: usize,
   cells: Vec<u8>,
-  wrap: bool
+  wrap: bool,
+  debug: bool
 }
 
 impl Memory {
-  pub fn new(size: usize, wrap: bool) -> Memory {
+  pub fn new(size: usize, wrap: bool, debug: bool) -> Memory {
     Memory {
       cells: vec![0; size],
       pointer: 0,
-      wrap
+      wrap,
+      debug
     }
   }
 
@@ -59,7 +61,11 @@ impl Memory {
   // IO operations
 
   pub fn write(&self) -> Result<(), String> {
-    print!("{}", self.get_value() as char);
+    if self.debug {
+      print!("[{}]", self.get_value());
+    } else {
+      print!("{}", self.get_value() as char);
+    }
     if let Err(_) = stdout().flush() {
       Err(String::from("couldn't write output"))
     } else {

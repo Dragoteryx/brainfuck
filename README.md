@@ -11,9 +11,11 @@ ARGS:
     <file>    The Brainfuck file to run
 
 FLAGS:
+    -d, --debug      Print the values in cells instead of the corresponding character
+    -f, --fork       Enable the use of the Y operator (Brainfork)
     -h, --help       Prints help information
     -V, --version    Prints version information
-    -w, --wrap       Enable wrap around
+    -w, --wrap       Wrap around when reaching the leftmost or rightmost cell
 
 OPTIONS:
     -s, --size <size>    Set the number of cells in memory [default: 30000]
