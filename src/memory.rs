@@ -62,15 +62,16 @@ impl Memory {
 
   pub fn write(&self) -> Result<(), String> {
     if self.debug {
-      print!("[{}]", self.get_value());
+      println!("[pointer: {}, value: {}]", self.pointer, self.get_value());
+      Ok(())
     } else {
       print!("{}", self.get_value() as char);
-    }
-    if stdout().flush().is_err() {
-      Err(String::from("couldn't write output"))
-    } else {
-      Ok(())
-    }
+      if stdout().flush().is_err() {
+        Err(String::from("couldn't write output"))
+      } else {
+        Ok(())
+      }
+    } 
   }
   pub fn read(&mut self) -> Result<(), String> {
     let mut input = [0];
