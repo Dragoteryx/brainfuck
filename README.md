@@ -20,3 +20,13 @@ FLAGS:
 OPTIONS:
     -s, --size <size>    Set the number of cells in memory [default: 30000]
 ```
+
+## Build
+
+Install the latest version of the Rust compiler.\
+Download the source files.\
+Build the files using this command:
+```
+cargo build --release
+```
+If everything went well, the executable should be in `/target/release`.
