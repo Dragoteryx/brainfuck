@@ -19,12 +19,6 @@ fn run<'a, I: Send + Clone + Iterator<Item = &'a Instruction>>(instructions: &mu
       Instruction::MoveLeft => memory.move_left(),
       Instruction::Write => memory.write(),
       Instruction::Read => memory.read(),
-      Instruction::Loop(inner) => {
-        while memory.get_value() != 0 {
-          run(&mut inner.iter(), memory)?;
-        }
-        Ok(())
-      },
       Instruction::Fork => {
         let instructions_clone: Vec<Instruction> = instructions.clone().cloned().collect();
         let mut memory_clone = memory.clone();
@@ -42,6 +36,12 @@ fn run<'a, I: Send + Clone + Iterator<Item = &'a Instruction>>(instructions: &mu
           sender_clone.send(()).unwrap();
         });
         memory.set_value(0);
+        Ok(())
+      }
+      Instruction::Loop(inner) => {
+        while memory.get_value() != 0 {
+          run(&mut inner.iter(), memory)?;
+        }
         Ok(())
       }
     }?;
