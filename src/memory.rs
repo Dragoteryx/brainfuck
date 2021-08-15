@@ -62,7 +62,7 @@ impl Memory {
 
   pub fn write(&self) -> Result<(), String> {
     if self.debug {
-      println!("[pointer: {}, value: {}, character: {}]", self.pointer, self.get_value(), self.get_value() as char);
+      println!("[pointer: {}, value: {}]", self.pointer, self.get_value());
       Ok(())
     } else {
       print!("{}", self.get_value() as char);
