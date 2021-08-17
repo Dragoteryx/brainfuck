@@ -1,6 +1,7 @@
+use super::memory::Memory;
 use super::lex::Token;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum Instruction {
   Loop(Vec<Instruction>),
   Increment,
@@ -8,8 +9,28 @@ pub enum Instruction {
   MoveRight,
   MoveLeft,
   Write,
-  Read,
-  Fork
+  Read
+}
+
+impl Instruction {
+  pub fn run(&self, memory: &mut Memory) -> Result<(), String> {
+    match self {
+      Instruction::Increment => Ok(memory.increment()),
+      Instruction::Decrement => Ok(memory.decrement()),
+      Instruction::MoveRight => memory.move_right(),
+      Instruction::MoveLeft => memory.move_left(),
+      Instruction::Write => memory.write(),
+      Instruction::Read => memory.read(),
+      Instruction::Loop(instructions) => {
+        while memory.get_value() != 0 {
+          for instruction in instructions {
+            instruction.run(memory)?;
+          }
+        }
+        Ok(())
+      }
+    }
+  }
 }
 
 pub fn parse<'a, I: Iterator<Item = &'a Token>>(tokens: &mut I) -> Result<Vec<Instruction>, String> {
@@ -26,7 +47,6 @@ fn parse_inner<'a, I: Iterator<Item = &'a Token>>(tokens: &mut I, is_loop: bool)
       Token::MoveLeft => Instruction::MoveLeft,
       Token::Write => Instruction::Write,
       Token::Read => Instruction::Read,
-      Token::Fork => Instruction::Fork,
       Token::EnterLoop => Instruction::Loop(parse_inner(tokens, true)?),
       Token::ExitLoop => if is_loop {
         return Ok(instructions);
