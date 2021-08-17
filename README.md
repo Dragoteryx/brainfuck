@@ -12,7 +12,6 @@ ARGS:
 
 FLAGS:
     -d, --debug      Print the values in cells instead of the corresponding character
-    -f, --fork       Enable the use of the Y operator (Brainfork)
     -h, --help       Prints help information
     -V, --version    Prints version information
     -w, --wrap       Wrap around when reaching the leftmost or rightmost cell

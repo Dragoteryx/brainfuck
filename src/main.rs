@@ -1,9 +1,9 @@
 use clap::Clap;
 use std::fs;
 
-pub mod lex; use lex::*;
-pub mod memory; use memory::*;
-pub mod parse; use parse::*;
+mod lex; use lex::*;
+mod memory; use memory::*;
+mod parse; use parse::*;
 
 // run
 
