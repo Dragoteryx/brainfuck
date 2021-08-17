@@ -1,6 +1,6 @@
 use std::io::{stdin, stdout, Write, Read};
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Memory {
   pointer: usize,
   cells: Vec<u8>,
