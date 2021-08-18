@@ -1,9 +1,9 @@
 use std::fmt::Debug;
 use crate::Error;
 
-mod memory_8; pub use memory_8::Memory8;
-mod memory_16; pub use memory_16::Memory16;
-mod memory_32; pub use memory_32::Memory32;
+mod memory8; pub use memory8::Memory8;
+mod memory16; pub use memory16::Memory16;
+mod memory32; pub use memory32::Memory32;
 
 pub trait Memory<T>: Debug {
   fn get_value(&self) -> T;
