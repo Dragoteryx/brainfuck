@@ -6,10 +6,11 @@ use std::fs;
 mod lex; use lex::*;
 mod memory; use memory::*;
 mod parse; use parse::*;
+mod error; use error::*;
 
 // run
 
-fn run(instructions: &Vec<Instruction>, memory: &mut Memory) -> Result<(), String> {
+fn run<T>(instructions: &Vec<Instruction>, memory: &mut impl Memory<T>) -> Result<(), Error> {
   for instruction in instructions {
     instruction.run(memory)?;
   }
@@ -24,17 +25,17 @@ pub struct Args {
   #[clap(about = "The Brainfuck file to run")]
   file: String,
 
+  #[clap(short, long, about = "Set the size of cells in bits", default_value = "8", possible_values = &["8", "16", "32"])]
+  cell_size: String,
+
   #[clap(short, long, about = "Set the number of cells in memory", default_value = "30000")]
-  size: NonZeroUsize,
+  memory_size: NonZeroUsize,
 
   #[clap(short, long, about = "Wrap around when reaching the leftmost or rightmost cell")]
   wrap_around: bool,
 
   #[clap(short, long, about = "Exit on cell overflows")]
   no_overflows: bool,
-
-  #[clap(short, long, about = "Cells use 4 bytes instead of 1")]
-  larger_cells: bool,
 
   #[clap(short, long, about = "Printing the current cell prints debug information")]
   debug: bool
@@ -46,13 +47,25 @@ fn main() {
     let tokens = lex(&content);
     match parse(&tokens) {
       Ok(instructions) => {
-        let mut memory = Memory::new(&args);
-        if let Err(err) = run(&instructions, &mut memory) {
-          eprintln!("{} {}", "runtime error:".red(), err);
+        if args.cell_size == "8" {
+          let mut memory = Memory8::new(&args);
+          if let Err(err) = run(&instructions, &mut memory) {
+            eprintln!("\n{} {}", "runtime error:".red(), err.message());
+          }
+        } else if args.cell_size == "16" {
+          let mut memory = Memory16::new(&args);
+          if let Err(err) = run(&instructions, &mut memory) {
+            eprintln!("\n{} {}", "runtime error:".red(), err.message());
+          }
+        } else if args.cell_size == "32" {
+          let mut memory = Memory32::new(&args);
+          if let Err(err) = run(&instructions, &mut memory) {
+            eprintln!("\n{} {}", "runtime error:".red(), err.message());
+          }
         }
       }
       Err(err) => {
-        eprintln!("{} {}", "compilation error:".red(), err);
+        eprintln!("{} {}", "compilation error:".red(), err.message());
       }
     }
   } else {

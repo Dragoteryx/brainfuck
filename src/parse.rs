@@ -1,6 +1,6 @@
 use super::memory::Memory;
 use super::lex::Token;
-use colored::Colorize;
+use crate::Error;
 
 #[derive(Debug)]
 pub enum Instruction {
@@ -14,7 +14,7 @@ pub enum Instruction {
 }
 
 impl Instruction {
-  pub fn run(&self, memory: &mut Memory) -> Result<(), String> {
+  pub fn run<T>(&self, memory: &mut impl Memory<T>) -> Result<(), Error> {
     match self {
       Instruction::Increment => memory.increment(),
       Instruction::Decrement => memory.decrement(),
@@ -23,7 +23,7 @@ impl Instruction {
       Instruction::Write => memory.write(),
       Instruction::Read => memory.read(),
       Instruction::Loop(instructions) => {
-        while memory.get_value() != 0 {
+        while !memory.is_null() {
           for instruction in instructions {
             instruction.run(memory)?;
           }
@@ -34,11 +34,11 @@ impl Instruction {
   }
 }
 
-pub fn parse(tokens: &Vec<Token>) -> Result<Vec<Instruction>, String> {
+pub fn parse(tokens: &Vec<Token>) -> Result<Vec<Instruction>, Error> {
   parse_inner(tokens, false, &mut 0)
 }
 
-fn parse_inner(tokens: &Vec<Token>, is_loop: bool, i: &mut usize) -> Result<Vec<Instruction>, String> {
+fn parse_inner(tokens: &Vec<Token>, is_loop: bool, i: &mut usize) -> Result<Vec<Instruction>, Error> {
   let mut instructions = vec![];
   while *i < tokens.len() {
     instructions.push(match tokens[*i] {
@@ -55,13 +55,13 @@ fn parse_inner(tokens: &Vec<Token>, is_loop: bool, i: &mut usize) -> Result<Vec<
       Token::ExitLoop => if is_loop {
         return Ok(instructions);
       } else {
-        return Err(String::from(format!("Close loop token at position {} unmatched", (*i).to_string().green())));
+        return Err(Error::UnmatchedCloseLoop(*i));
       }
     });
     *i += 1;
   }
   if is_loop {
-    Err(String::from(format!("Open loop token at position {} unmatched", (*i).to_string().green())))
+    Err(Error::UnmatchedOpenLoop(*i))
   } else {
     Ok(instructions)
   }

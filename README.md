@@ -13,13 +13,13 @@ ARGS:
 FLAGS:
     -d, --debug           Printing the current cell prints debug information
     -h, --help            Prints help information
-    -l, --larger-cells    Cells use 4 bytes instead of 1
     -n, --no-overflows    Exit on cell overflows
     -V, --version         Prints version information
     -w, --wrap-around     Wrap around when reaching the leftmost or rightmost cell
 
 OPTIONS:
-    -s, --size <size>    Set the number of cells in memory [default: 30000]
+    -c, --cell-size <cell-size>        Set the size of cells in bits [default: 8] [possible values: 8, 16, 32]
+    -m, --memory-size <memory-size>    Set the number of cells in memory [default: 30000]
 ```
 
 ## Build
