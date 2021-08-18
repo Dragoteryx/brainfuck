@@ -116,7 +116,7 @@ impl Memory<'_> {
       }
     } 
   }
-  
+
   pub fn read(&mut self) -> Result<(), String> {
     let mut input = String::new();
     match stdin().read_line(&mut input) {
@@ -128,7 +128,7 @@ impl Memory<'_> {
           let char = input.chars().nth(0).unwrap();
           let value = char as u32;
           if value > self.max_value() {
-            Err(String::from(format!("Cell isn't large enough to store the character '{}', enable the '--larger-cells' option", char.to_string().yellow())))
+            Err(String::from(format!("Cells aren't large enough to store the character '{}', enable the '--larger-cells' option", char.to_string().yellow())))
           } else {
             Ok(self.set_value(value))
           }
