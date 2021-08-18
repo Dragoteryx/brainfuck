@@ -1,3 +1,5 @@
+use colored::Colorize;
+
 use super::memory::Memory;
 use super::lex::Token;
 
@@ -33,30 +35,34 @@ impl Instruction {
   }
 }
 
-pub fn parse<'a, I: Iterator<Item = &'a Token>>(tokens: &mut I) -> Result<Vec<Instruction>, String> {
-  parse_inner(tokens, false)
+pub fn parse(tokens: &Vec<Token>) -> Result<Vec<Instruction>, String> {
+  parse_inner(tokens, false, &mut 0)
 }
 
-fn parse_inner<'a, I: Iterator<Item = &'a Token>>(tokens: &mut I, is_loop: bool) -> Result<Vec<Instruction>, String> {
+fn parse_inner(tokens: &Vec<Token>, is_loop: bool, i: &mut usize) -> Result<Vec<Instruction>, String> {
   let mut instructions = vec![];
-  while let Some(token) = tokens.next() {
-    instructions.push(match token {
+  while *i < tokens.len() {
+    instructions.push(match tokens[*i] {
       Token::Increment => Instruction::Increment,
       Token::Decrement => Instruction::Decrement,
       Token::MoveRight => Instruction::MoveRight,
       Token::MoveLeft => Instruction::MoveLeft,
       Token::Write => Instruction::Write,
       Token::Read => Instruction::Read,
-      Token::EnterLoop => Instruction::Loop(parse_inner(tokens, true)?),
+      Token::EnterLoop => {
+        *i += 1;
+        Instruction::Loop(parse_inner(tokens, true, i)?)
+      }
       Token::ExitLoop => if is_loop {
         return Ok(instructions);
       } else {
-        return Err(String::from("missing open loop token"));
+        return Err(String::from(format!("Close loop token at position {} unmatched", (*i).to_string().green())));
       }
     });
+    *i += 1;
   }
   if is_loop {
-    Err(String::from("missing close loop token"))
+    Err(String::from(format!("Open loop token at position {} unmatched", (*i).to_string().green())))
   } else {
     Ok(instructions)
   }

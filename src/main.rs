@@ -8,7 +8,7 @@ mod parse; use parse::*;
 
 // run
 
-fn run<'a, I: Send + Clone + Iterator<Item = &'a Instruction>>(instructions: &mut I, memory: &mut Memory) -> Result<(), String> {
+fn run(instructions: &Vec<Instruction>, memory: &mut Memory) -> Result<(), String> {
   for instruction in instructions {
     instruction.run(memory)?;
   }
@@ -40,10 +40,10 @@ fn main() {
   let args = Args::parse();
   if let Ok(content) = fs::read_to_string(&args.file) {
     let tokens = lex(&content);
-    match parse(&mut tokens.iter()) {
+    match parse(&tokens) {
       Ok(instructions) => {
         let mut memory = Memory::new(&args);
-        if let Err(err) = run(&mut instructions.iter(), &mut memory) {
+        if let Err(err) = run(&instructions, &mut memory) {
           eprintln!("{} {}", "runtime error:".red(), err);
         }
       }
