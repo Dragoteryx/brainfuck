@@ -1,6 +1,5 @@
 use std::io::{stdin, stdout, Write, Read};
 use colored::Colorize;
-
 use super::Args;
 
 #[derive(Debug)]
@@ -13,7 +12,7 @@ pub struct Memory<'a> {
 impl Memory<'_> {
   pub fn new<'a>(args: &'a Args) -> Memory<'a> {
     Memory {
-      cells: vec![0; args.size],
+      cells: vec![0; args.size.into()],
       pointer: 0,
       args
     }

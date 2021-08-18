@@ -1,3 +1,4 @@
+use std::num::NonZeroUsize;
 use colored::Colorize;
 use clap::Clap;
 use std::fs;
@@ -24,7 +25,7 @@ pub struct Args {
   file: String,
 
   #[clap(short, long, about = "Set the number of cells in memory", default_value = "30000")]
-  size: usize,
+  size: NonZeroUsize,
 
   #[clap(short, long, about = "Wrap around when reaching the leftmost or rightmost cell")]
   wrap_around: bool,
