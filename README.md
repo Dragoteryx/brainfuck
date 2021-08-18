@@ -1,7 +1,7 @@
 # Brainfuck
 
 A Brainfuck interpreter written in Rust.\
-I made this to learn the language.
+I originally made this to learn the language, but am now trying to add as many features as possible.
 
 ```
 USAGE:
