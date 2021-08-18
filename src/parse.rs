@@ -15,8 +15,8 @@ pub enum Instruction {
 impl Instruction {
   pub fn run(&self, memory: &mut Memory) -> Result<(), String> {
     match self {
-      Instruction::Increment => Ok(memory.increment()),
-      Instruction::Decrement => Ok(memory.decrement()),
+      Instruction::Increment => memory.increment(),
+      Instruction::Decrement => memory.decrement(),
       Instruction::MoveRight => memory.move_right(),
       Instruction::MoveLeft => memory.move_left(),
       Instruction::Write => memory.write(),

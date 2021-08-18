@@ -1,3 +1,4 @@
+use colored::Colorize;
 use clap::Clap;
 use std::fs;
 
@@ -16,9 +17,9 @@ fn run<'a, I: Send + Clone + Iterator<Item = &'a Instruction>>(instructions: &mu
 
 // main
 
-#[derive(Clap)]
+#[derive(Clap, Debug)]
 #[clap(version = env!("CARGO_PKG_VERSION"))]
-struct Args {
+pub struct Args {
   #[clap(about = "The Brainfuck file to run")]
   file: String,
 
@@ -26,9 +27,12 @@ struct Args {
   size: usize,
 
   #[clap(short, long, about = "Wrap around when reaching the leftmost or rightmost cell")]
-  wrap: bool,
+  wrap_around: bool,
 
-  #[clap(short, long, about = "Print information about the current cell instead of the corresponding character")]
+  #[clap(short, long, about = "Disable cell overflows")]
+  no_overflows: bool,
+
+  #[clap(short, long, about = "Printing the current cell prints debug information")]
   debug: bool
 }
 
@@ -38,16 +42,16 @@ fn main() {
     let tokens = lex(&content);
     match parse(&mut tokens.iter()) {
       Ok(instructions) => {
-        let mut memory = Memory::new(args.size, args.wrap, args.debug);
+        let mut memory = Memory::new(&args);
         if let Err(err) = run(&mut instructions.iter(), &mut memory) {
-          eprintln!("Runtime error: {}", err);
+          eprintln!("{} {}", "runtime error:".red(), err);
         }
       }
       Err(err) => {
-        eprintln!("Compile time error: {}", err);
+        eprintln!("{} {}", "compilation error:".red(), err);
       }
     }
   } else {
-    eprintln!("Couldn't read the file. Are you sure the path is valid?");
+    eprintln!("{} {}", "error:".red(), "Couldn't read the file, are you sure the path is valid?");
   }
 }
