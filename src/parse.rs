@@ -1,7 +1,6 @@
-use colored::Colorize;
-
 use super::memory::Memory;
 use super::lex::Token;
+use colored::Colorize;
 
 #[derive(Debug)]
 pub enum Instruction {
