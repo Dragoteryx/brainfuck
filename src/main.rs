@@ -30,8 +30,11 @@ pub struct Args {
   #[clap(short, long, about = "Wrap around when reaching the leftmost or rightmost cell")]
   wrap_around: bool,
 
-  #[clap(short, long, about = "Disable cell overflows")]
+  #[clap(short, long, about = "Exit on cell overflows")]
   no_overflows: bool,
+
+  #[clap(short, long, about = "Cells use 4 bytes instead of 1")]
+  larger_cells: bool,
 
   #[clap(short, long, about = "Printing the current cell prints debug information")]
   debug: bool

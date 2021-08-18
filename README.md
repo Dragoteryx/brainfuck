@@ -13,7 +13,8 @@ ARGS:
 FLAGS:
     -d, --debug           Printing the current cell prints debug information
     -h, --help            Prints help information
-    -n, --no-overflows    Disable cell overflows
+    -l, --larger-cells    Cells use 4 bytes instead of 1
+    -n, --no-overflows    Exit on cell overflows
     -V, --version         Prints version information
     -w, --wrap-around     Wrap around when reaching the leftmost or rightmost cell
 
