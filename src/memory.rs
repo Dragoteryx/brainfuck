@@ -31,7 +31,7 @@ impl Memory<'_> {
     if self.get_value() < 255 {
       Ok(self.set_value(self.get_value()+1))
     } else if self.args.no_overflows {
-      Err(String::from(format!("Cell {} overflowed", self.pointer)))
+      Err(String::from(format!("Cell {} positively overflowed", self.pointer)))
     } else {
       Ok(self.set_value(0))
     }
@@ -40,7 +40,7 @@ impl Memory<'_> {
     if self.get_value() > 0 {
       Ok(self.set_value(self.get_value()-1))
     } else if self.args.no_overflows {
-      Err(String::from(format!("Cell {} overflowed", self.pointer)))
+      Err(String::from(format!("Cell {} negatively overflowed", self.pointer)))
     } else {
       Ok(self.set_value(255))
     }
