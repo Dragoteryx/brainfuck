@@ -14,6 +14,8 @@ FLAGS:
     -d, --debug           Printing the current cell prints debug information
     -h, --help            Prints help information
     -n, --no-overflows    Exit on cell overflows
+    -t, --timed           Prints how long the program took to execute
+    -u, --unoptimised     Disables all optimisations
     -V, --version         Prints version information
     -w, --wrap-around     Wrap around when reaching the leftmost or rightmost cell
 

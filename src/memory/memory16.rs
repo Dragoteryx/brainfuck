@@ -1,12 +1,8 @@
-use std::io::{stdin, stdout, Write};
-use colored::Colorize;
-use super::Memory;
-use crate::Error;
-use crate::Args;
+use crate::{Args, Error, Memory};
 
 #[derive(Debug)]
 pub struct Memory16<'a> {
-  cells: Vec<u16>,
+  memory: Vec<u16>,
   pointer: usize,
   args: &'a Args
 }
@@ -14,7 +10,7 @@ pub struct Memory16<'a> {
 impl Memory16<'_> {
   pub fn new<'a>(args: &'a Args) -> Memory16<'a> {
     Memory16 {
-      cells: vec![0; args.memory_size.into()],
+      memory: vec![0; args.memory_size.into()],
       pointer: 0,
       args
     }
@@ -22,117 +18,86 @@ impl Memory16<'_> {
 }
 
 impl Memory<u16> for Memory16<'_> {
-  fn get_value(&self) -> u16 {
-    self.cells[self.pointer]
+  fn args(&self) -> &Args {
+    self.args
   }
-  fn is_null(&self) -> bool {
-    self.get_value() == 0
+  fn size(&self) -> usize {
+    self.args.memory_size.into()
   }
-  
-  fn set_value(&mut self, value: u16) {
-    self.cells[self.pointer] = value;
-  }
-  fn increment(&mut self) -> Result<(), Error> {
-    if self.get_value() < u16::MAX {
-      Ok(self.set_value(self.get_value()+1))
-    } else if self.args.no_overflows {
-      Err(Error::PositiveOverflow(self.pointer))
-    } else {
-      Ok(self.set_value(0))
-    }
-  }
-  fn decrement(&mut self) -> Result<(), Error> {
-    if self.get_value() > 0 {
-      Ok(self.set_value(self.get_value()-1))
-    } else if self.args.no_overflows {
-      Err(Error::NegativeOverflow(self.pointer))
-    } else {
-      Ok(self.set_value(u16::MAX))
-    }
+  fn null() -> u16 {
+    0
   }
 
-  // move operations
+  // pointer
 
-  fn move_right(&mut self) -> Result<(), Error> {
-    if self.pointer < self.cells.len()-1 {
-      self.pointer += 1;
-      Ok(())
-    } else if self.args.wrap_around {
-      self.pointer = 0;
-      Ok(())
-    } else {
-      Err(Error::RightMostCell)
-    }
+  fn pointer(&self) -> usize {
+    self.pointer
   }
-  fn move_left(&mut self) -> Result<(), Error> {
-    if self.pointer > 0 {
-      self.pointer -= 1;
-      Ok(())
-    } else if self.args.wrap_around {
-      self.pointer = self.cells.len()-1;
-      Ok(())
-    } else {
-      Err(Error::LeftMostCell)
-    }
+  fn pointer_mut(&mut self) -> &mut usize {
+    &mut self.pointer
   }
 
-  // IO operations
+  // memory
 
-  fn write(&self) -> Result<(), Error> {
-    let value = self.get_value();
-    if self.args.debug {
-      match char::from_u32(value as u32) {
-        Some(char) => {
-          println!("{} [pointer: {}, value: {}, character: '{}']",
-            "debug:".green(),
-            self.pointer.to_string().green(),
-            self.get_value().to_string().green(),
-            char.to_string().yellow()
-          );
-          Ok(())
-        }
-        None => {
-          println!("{} [pointer: {}, value: {}, invalid character]",
-            "debug:".green(),
-            self.pointer.to_string().green(),
-            self.get_value().to_string().green()
-          );
-          Ok(())
+  fn value(&self, pointer: usize) -> u16 {
+    self.memory[pointer as usize]
+  }
+  fn value_mut(&mut self, pointer: usize) -> &mut u16 {
+    &mut self.memory[pointer as usize]
+  }
+  fn value_is_null(&self, value: u16) -> bool {
+    value == 0
+  }
+
+  fn add_value(&self, pointer: usize, n: u32) -> Result<u16, Error> {
+    if self.args.no_overflows {
+      if n > 0xFFFF {
+        Err(Error::PositiveOverflow(pointer))
+      } else {
+        match self.value(pointer).checked_add(n as u16) {
+          None => Err(Error::PositiveOverflow(pointer)),
+          Some(ok) => Ok(ok)
         }
       }
     } else {
-      match char::from_u32(value as u32) {
-        None => Err(Error::InvalidUnicode(value as u32)),
-        Some(char) => {
-          print!("{}", char);
-          if stdout().flush().is_err() {
-            Err(Error::WriteOutputFail)
-          } else {
-            Ok(())
-          }
+      Ok(self.value(pointer).wrapping_add((n%0x10000) as u16))
+    }
+  }
+  fn sub_value(&self, pointer: usize, n: u32) -> Result<u16, Error> {
+    if self.args.no_overflows {
+      if n > 0xFFFF {
+        Err(Error::NegativeOverflow(pointer))
+      } else {
+        match self.value(pointer).checked_sub(n as u16) {
+          None => Err(Error::NegativeOverflow(pointer)),
+          Some(ok) => Ok(ok)
         }
-        
       }
-    } 
+    } else {
+      Ok(self.value(pointer).wrapping_sub((n%0x10000) as u16))
+    }
   }
 
-  fn read(&mut self) -> Result<(), Error> {
-    let mut input = String::new();
-    match stdin().read_line(&mut input) {
-      Err(_) => Err(Error::ReadInputFail),
-      Ok(size) => {
-        if size == 0 {
-          Err(Error::NoInput)
-        } else {
-          let char = input.chars().nth(0).unwrap();
-          let value = char as u32;
-          if value > u16::MAX.into() {
-            Err(Error::Requires32Bits(char))
-          } else {
-            Ok(self.set_value(char as u16))
-          }
-        }
-      }
+  // conversions
+
+  fn value_to_u32(value: u16) -> u32 {
+    value as u32
+  }
+  fn value_to_string(value: u16) -> String {
+    value.to_string()
+  }
+  fn value_to_char(value: u16) -> Result<char, Error> {
+    match char::from_u32(value as u32) {
+      None => Err(Error::InvalidUnicode(value as u32)),
+      Some(char) => Ok(char)
+    }
+  }
+  fn char_to_value(char: char) -> Result<u16, Error> {
+    let value = char as u32;
+    if value > u16::MAX as u32 {
+      Err(Error::Requires32Bits(char))
+    } else {
+      Ok(value as u16)
     }
   }
 }
