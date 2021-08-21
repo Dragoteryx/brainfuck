@@ -8,8 +8,8 @@ pub enum Edit {
 
 #[derive(Debug, Clone, Copy)]
 pub enum Move {
-  Right(usize),
-  Left(usize)
+  Right(u32),
+  Left(u32)
 }
 
 #[derive(Debug)]

@@ -11,15 +11,15 @@ mod memory32; pub use memory32::*;
 
 pub trait Memory<T>: Debug {
   fn args(&self) -> &Args;
-  fn size(&self) -> usize;
+  fn size(&self) -> u32;
   fn null() -> T;
 
   // pointer
 
-  fn pointer(&self) -> usize;
-  fn pointer_mut(&mut self) -> &mut usize;
+  fn pointer(&self) -> u32;
+  fn pointer_mut(&mut self) -> &mut u32;
 
-  fn add_pointer(&self, n: usize) -> Result<usize, Error> {
+  fn add_pointer(&self, n: u32) -> Result<u32, Error> {
     if self.size() > self.pointer() + n {
       Ok(self.pointer() + n)
     } else if self.args().wrap_around {
@@ -28,7 +28,7 @@ pub trait Memory<T>: Debug {
       Err(Error::RightMostCell)
     }
   }
-  fn sub_pointer(&self, n: usize) -> Result<usize, Error> {
+  fn sub_pointer(&self, n: u32) -> Result<u32, Error> {
     if self.pointer() >= n {
       Ok(self.pointer() - n)
     } else if self.args().wrap_around {
@@ -38,33 +38,33 @@ pub trait Memory<T>: Debug {
     }
   }
 
-  fn incr_pointer(&mut self, n: usize) -> Result<(), Error> {
+  fn incr_pointer(&mut self, n: u32) -> Result<(), Error> {
     *self.pointer_mut() = self.add_pointer(n)?;
     Ok(())
   }
-  fn decr_pointer(&mut self, n: usize) -> Result<(), Error> {
+  fn decr_pointer(&mut self, n: u32) -> Result<(), Error> {
     *self.pointer_mut() = self.sub_pointer(n)?;
     Ok(())
   }
 
   // memory
 
-  fn value(&self, pointer: usize) -> T;
-  fn value_mut(&mut self, pointer: usize) -> &mut T;
+  fn value(&self, pointer: u32) -> T;
+  fn value_mut(&mut self, pointer: u32) -> &mut T;
   fn value_is_null(&self, value: T) -> bool;
 
-  fn add_value(&self, pointer: usize, n: u32) -> Result<T, Error>;
-  fn sub_value(&self, pointer: usize, n: u32) -> Result<T, Error>;
+  fn add_value(&self, pointer: u32, n: u32) -> Result<T, Error>;
+  fn sub_value(&self, pointer: u32, n: u32) -> Result<T, Error>;
 
-  fn incr_value(&mut self, pointer: usize, n: u32) -> Result<(), Error> {
+  fn incr_value(&mut self, pointer: u32, n: u32) -> Result<(), Error> {
     *self.value_mut(pointer) = self.add_value(pointer, n)?;
     Ok(())
   }
-  fn decr_value(&mut self, pointer: usize, n: u32) -> Result<(), Error> {
+  fn decr_value(&mut self, pointer: u32, n: u32) -> Result<(), Error> {
     *self.value_mut(pointer) = self.sub_value(pointer, n)?;
     Ok(())
   }
-  fn clear_value(&mut self, pointer: usize) -> Result<(), Error> {
+  fn clear_value(&mut self, pointer: u32) -> Result<(), Error> {
     *self.value_mut(pointer) = Self::null();
     Ok(())
   }

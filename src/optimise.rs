@@ -7,9 +7,9 @@ fn optimise_first(instructions: Vec<Instruction>) -> Vec<Instruction> {
   for instruction in instructions {
     if let Instruction::Loop(inner_instructions) = instruction {
       let inner_optimised = optimise(inner_instructions);
-      optimised.push(match &inner_optimised[..] {
-        /*&[Instruction::Edit(Edit::Decrement(1)), Instruction::EditOther(mov, edit)]
-        | &[Instruction::EditOther(mov, edit), Instruction::Edit(Edit::Decrement(1))] => {
+      optimised.push(match inner_optimised[..] {
+        /*[Instruction::Edit(Edit::Decrement(1)), Instruction::EditOther(mov, edit)]
+        | [Instruction::EditOther(mov, edit), Instruction::Edit(Edit::Decrement(1))] => {
           Instruction::EditOtherLoop(mov, edit)
         }*/
         [Instruction::Edit(Edit::Decrement(1))] => Instruction::Clear,
@@ -75,14 +75,14 @@ fn optimise_second(instructions: Vec<Instruction>) -> Vec<Instruction> {
             if left == right {
               *optimised.last_mut().unwrap() = Instruction::EditOther(Move::Left(left), edit);
             } else {
-              optimised.push(Instruction::Move(mov_after))
+              optimised.push(Instruction::Move(mov_after));
             }
           }
           (Move::Right(right), Move::Left(left)) => {
             if left == right {
               *optimised.last_mut().unwrap() = Instruction::EditOther(Move::Right(right), edit);
             } else {
-              optimised.push(Instruction::Move(mov_after))
+              optimised.push(Instruction::Move(mov_after));
             }
           }
           _ => optimised.push(Instruction::Move(mov_after))

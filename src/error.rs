@@ -7,8 +7,8 @@ pub enum Error {
   UnmatchedOpenLoop(usize),
 
   // runtime
-  PositiveOverflow(usize),
-  NegativeOverflow(usize),
+  PositiveOverflow(u32),
+  NegativeOverflow(u32),
   RightMostCell,
   LeftMostCell,
   InvalidUnicode(u32),

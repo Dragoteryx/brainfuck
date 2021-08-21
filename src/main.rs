@@ -1,5 +1,5 @@
 use std::io::{stdout, Write};
-use std::num::NonZeroUsize;
+use std::num::NonZeroU32;
 use std::time::Instant;
 use colored::Colorize;
 use clap::Clap;
@@ -32,7 +32,7 @@ pub struct Args {
   cell_size: String,
 
   #[clap(short, long, about = "Set the number of cells in memory", default_value = "30000")]
-  memory_size: NonZeroUsize,
+  memory_size: NonZeroU32,
 
   #[clap(short, long, about = "Wrap around when reaching the leftmost or rightmost cell")]
   wrap_around: bool,
