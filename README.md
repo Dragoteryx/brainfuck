@@ -24,12 +24,8 @@ OPTIONS:
     -m, --memory-size <memory-size>    Set the number of cells in memory [default: 30000]
 ```
 
-## Build
+## Installation
 
-Install the latest version of the Rust compiler.\
-Download the source files.\
-Build the files using this command:
 ```
-cargo build --release
+cargo install --git https://github.com/Dragoteryx/brainfuck
 ```
-If everything went well, the executable should be in `/target/release`.
